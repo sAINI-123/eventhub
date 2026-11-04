@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EventHub - Event Management &amp; Ticketing</title>
+  <link rel="stylesheet" href="eventhub.css">
+</head>
+<body>
+
+<!-- ================= NAVBAR ================= -->
+<div class="navbar">
+  <div class="logo">Event<span>Hub</span></div>
+  <nav id="tabs">
+    <button class="active" data-target="events">Events</button>
+    <button data-target="book">Book Tickets</button>
+    <button data-target="mybookings">My Bookings</button>
+    <button data-target="admin">Admin</button>
+  </nav>
+</div>
+
+<!-- ================= HERO ================= -->
+<div class="hero">
+  <h1>Discover &amp; Book Amazing Events</h1>
+  <p>Concerts, conferences, comedy shows and more &mdash; all in one place.</p>
+  <input type="text" id="search" placeholder="🔍  Search events by name...">
+</div>
+
+<main>
+
+  <!-- ================= EVENTS ================= -->
+  <section id="events" class="section active">
+    <h2>Upcoming Events</h2>
+
+    <div class="filters" id="filters">
+      <button class="chip active" data-cat="all">All</button>
+      <button class="chip" data-cat="Music">Music</button>
+      <button class="chip" data-cat="Tech">Tech</button>
+      <button class="chip" data-cat="Comedy">Comedy</button>
+      <button class="chip" data-cat="Business">Business</button>
+    </div>
+
+    <div class="events-grid" id="eventsGrid">
+
+      <div class="event-card" data-cat="Music" data-title="Punjab Music Fest">
+        <div class="event-banner b-music">🎵</div>
+        <div class="event-body">
+          <h3>Punjab Music Fest</h3>
+          <div class="meta">📍 Open Air Arena, Ludhiana</div>
+          <div class="meta">📅 13 Nov 2026</div>
+          <div><span class="badge ok">98 seats left</span></div>
+          <div class="price-row">
+            <span class="price">₹799</span>
+            <button class="btn small" onclick="bookEvent(1,'Punjab Music Fest',799)">Book Now</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="event-card" data-cat="Tech" data-title="DevConnect 2026">
+        <div class="event-banner b-tech">💻</div>
+        <div class="event-body">
+          <h3>DevConnect 2026</h3>
+          <div class="meta">📍 Tech Park Auditorium, Mohali</div>
+          <div class="meta">📅 8 Nov 2026</div>
+          <div><span class="badge ok">46 seats left</span></div>
+          <div class="price-row">
+            <span class="price">₹499</span>
+            <button class="btn small" onclick="bookEvent(2,'DevConnect 2026',499)">Book Now</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="event-card" data-cat="Comedy" data-title="Stand-up Comedy Night">
+        <div class="event-banner b-comedy">🎤</div>
+        <div class="event-body">
+          <h3>Stand-up Comedy Night</h3>
+          <div class="meta">📍 City Convention Hall, Chandigarh</div>
+          <div class="meta">📅 3 Nov 2026</div>
+          <div><span class="badge out">Sold out</span></div>
+          <div class="price-row">
+            <span class="price">₹350</span>
+            <button class="btn small" disabled>Sold Out</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="event-card" data-cat="Business" data-title="Startup Pitch Day">
+        <div class="event-banner b-business">🚀</div>
+        <div class="event-body">
+          <h3>Startup Pitch Day</h3>
+          <div class="meta">📍 City Convention Hall, Chandigarh</div>
+          <div class="meta">📅 31 Oct 2026</div>
+          <div><span class="badge ok">80 seats left</span></div>
+          <div class="price-row">
+            <span class="price">₹250</span>
+            <button class="btn small" onclick="bookEvent(4,'Startup Pitch Day',250)">Book Now</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ================= BOOK TICKETS ================= -->
+  <section id="book" class="section">
+    <h2>Book Tickets</h2>
+    <div class="card">
+      <form action="/book-ticket" method="post">
+        <div>
+          <label>Event ID</label>
+          <input type="number" id="f_event" name="event_id" min="1" required>
+        </div>
+        <div>
+          <label>Event Name</label>
+          <input type="text" id="f_title" readonly placeholder="Select from Events tab">
+        </div>
+        <div>
+          <label>Your User ID</label>
+          <input type="number" name="user_id" min="1" required>
+        </div>
+        <div>
+          <label>Tickets (max 6)</label>
+          <input type="number" id="f_qty" name="qty" min="1" max="6" value="1" required>
+        </div>
+        <div>
+          <label>Payment Method</label>
+          <select name="method">
+            <option>UPI</option>
+            <option>CARD</option>
+            <option>NETBANKING</option>
+            <option>CASH</option>
+          </select>
+        </div>
+        <div class="summary-box">
+          Price per ticket: ₹<span id="f_price">0</span> &nbsp;|&nbsp;
+          Discount: <span id="f_disc">0%</span> &nbsp;|&nbsp;
+          Total payable: <b>₹<span id="f_total">0</span></b>
+        </div>
+        <div><button class="btn" type="submit">Confirm Booking</button></div>
+      </form>
+      <div class="note">
+        Backend me ye form <code>book_ticket(user_id, event_id, qty, method, booking_id)</code> procedure call karega.
+        4 ya usse zyada tickets par <b>10% group discount</b> milta hai (<code>calc_total</code> function).
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= MY BOOKINGS ================= -->
+  <section id="mybookings" class="section">
+    <h2>My Bookings</h2>
+    <div class="card table-wrap">
+      <table>
+        <thead>
+          <tr><th>Booking</th><th>Event</th><th>Date</th><th>Tickets</th><th>Amount</th><th>Status</th><th>Refund</th><th></th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>#1001</td><td>Punjab Music Fest</td><td>13 Nov 2026</td><td>2</td><td>₹1,598</td>
+            <td><span class="badge confirmed">CONFIRMED</span></td><td>&mdash;</td>
+            <td><button class="btn small danger">Cancel</button></td>
+          </tr>
+          <tr>
+            <td>#1002</td><td>DevConnect 2026</td><td>8 Nov 2026</td><td>4</td><td>₹1,796.40</td>
+            <td><span class="badge confirmed">CONFIRMED</span></td><td>&mdash;</td>
+            <td><button class="btn small danger">Cancel</button></td>
+          </tr>
+          <tr>
+            <td>#1003</td><td>Stand-up Comedy Night</td><td>3 Nov 2026</td><td>5</td><td>₹1,575</td>
+            <td><span class="badge confirmed">CONFIRMED</span></td><td>&mdash;</td>
+            <td><button class="btn small danger">Cancel</button></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="note">
+        <b>Refund policy</b> (<code>cancel_booking</code> procedure):
+        event se 48+ ghante pehle = 100% refund &bull; 24&ndash;48 ghante = 50% refund &bull; 24 ghante se kam = cancel nahi hoga.
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= ADMIN ================= -->
+  <section id="admin" class="section">
+    <h2>Admin Panel</h2>
+
+    <div class="stats">
+      <div class="stat"><span>4</span><small>Total Events</small></div>
+      <div class="stat pink"><span>11</span><small>Tickets Sold</small></div>
+      <div class="stat green"><span>₹4,969.40</span><small>Total Revenue</small></div>
+    </div>
+
+    <div class="card">
+      <h2>Add New Event</h2>
+      <form action="/add-event" method="post">
+        <div><label>Title</label><input type="text" name="title" required></div>
+        <div>
+          <label>Category</label>
+          <select name="category">
+            <option>Music</option><option>Tech</option><option>Comedy</option><option>Business</option><option>Sports</option>
+          </select>
+        </div>
+        <div><label>Venue ID</label><input type="number" name="venue_id" min="1" required></div>
+        <div><label>Date &amp; Time</label><input type="datetime-local" name="event_date" required></div>
+        <div><label>Ticket Price (₹)</label><input type="number" name="ticket_price" min="0" required></div>
+        <div><label>Total Seats</label><input type="number" name="total_seats" min="1" required></div>
+        <div style="grid-column:1/-1"><label>Description</label><textarea name="description" rows="2"></textarea></div>
+        <div><button class="btn" type="submit">Add Event</button></div>
+      </form>
+    </div>
+
+    <div class="card table-wrap">
+      <h2>Event Sales Report</h2>
+      <table>
+        <thead><tr><th>ID</th><th>Event</th><th>Tickets Sold</th><th>Revenue</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>Punjab Music Fest</td><td>2</td><td>₹1,598</td></tr>
+          <tr><td>2</td><td>DevConnect 2026</td><td>4</td><td>₹1,796.40</td></tr>
+          <tr><td>3</td><td>Stand-up Comedy Night</td><td>5</td><td>₹1,575 (10% group discount)</td></tr>
+          <tr><td>4</td><td>Startup Pitch Day</td><td>0</td><td>₹0</td></tr>
+        </tbody>
+      </table>
+      <div class="note">Ye data <code>event_sales_report</code> procedure aur <code>v_event_listing</code> view se aata hai. Event cancel hote hi trigger <code>trg_event_cancelled</code> saari bookings cancel karke full refund de deta hai.</div>
+    </div>
+  </section>
+
+</main>
+
+<footer>EventHub &copy; 2026 &mdash; Mini Project (HTML, CSS, Oracle SQL &amp; PL/SQL)</footer>
+
+<script>
+  // ---------- Tab switching ----------
+  const tabs     = document.querySelectorAll('#tabs button');
+  const sections = document.querySelectorAll('.section');
+  function showTab(id) {
+    tabs.forEach(b => b.classList.toggle('active', b.dataset.target === id));
+    sections.forEach(s => s.classList.toggle('active', s.id === id));
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  tabs.forEach(b => b.addEventListener('click', () => showTab(b.dataset.target)));
+
+  // ---------- Category filter + search ----------
+  let currentCat = 'all';
+  const cards = document.querySelectorAll('.event-card');
+  const search = document.getElementById('search');
+
+  function applyFilter() {
+    const q = search.value.trim().toLowerCase();
+    cards.forEach(c => {
+      const catOk  = currentCat === 'all' || c.dataset.cat === currentCat;
+      const textOk = c.dataset.title.toLowerCase().includes(q);
+      c.style.display = (catOk && textOk) ? '' : 'none';
+    });
+  }
+  document.querySelectorAll('#filters .chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      document.querySelectorAll('#filters .chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      currentCat = chip.dataset.cat;
+      applyFilter();
+    });
+  });
+  search.addEventListener('input', () => { showTab('events'); applyFilter(); });
+
+  // ---------- Booking form helpers ----------
+  let unitPrice = 0;
+  function bookEvent(id, title, price) {
+    document.getElementById('f_event').value = id;
+    document.getElementById('f_title').value = title;
+    unitPrice = price;
+    document.getElementById('f_price').textContent = price;
+    updateTotal();
+    showTab('book');
+  }
+  function updateTotal() {
+    const qty  = parseInt(document.getElementById('f_qty').value) || 0;
+    const disc = qty >= 4 ? 0.10 : 0;
+    const total = unitPrice * qty * (1 - disc);
+    document.getElementById('f_disc').textContent  = (disc * 100) + '%';
+    document.getElementById('f_total').textContent = total.toLocaleString('en-IN', { maximumFractionDigits: 2 });
+  }
+  document.getElementById('f_qty').addEventListener('input', updateTotal);
+</script>
+
+</body>
+</html>
